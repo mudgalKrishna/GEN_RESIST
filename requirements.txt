@@ -6,13 +6,13 @@ python-multipart
 numpy
 biopython
 
-torch==2.2.2+cpu
-torchvision==0.17.2+cpu
-torchaudio==2.2.2+cpu
+torch==2.1.0+cpu
+torchvision==0.16.0+cpu
+torchaudio==2.1.0+cpu
 --extra-index-url https://download.pytorch.org/whl/cpu
 
-torch-scatter
-torch-sparse
-torch-cluster
-torch-spline-conv
-torch-geometric==2.5.2
+torch-scatter==2.1.2
+torch-sparse==0.6.18
+torch-cluster==1.6.3
+torch-spline-conv==1.2.2
+torch-geometric==2.4.0
