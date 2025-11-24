@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: amr-prediction-api
+    env: docker
+    plan: free   # or 'free' but free sleeps
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    healthCheckPath: /
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: MODEL_DIR
+        value: "model"
