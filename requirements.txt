@@ -1,7 +1,7 @@
-torch-geometric==2.4.0
+torch-geometric>=2.3.0
 fastapi
 uvicorn
 pydantic
 python-multipart
-numpy<2.0
-biopython
+numpy>=1.24.0,<2.0
+biopython>=1.81
