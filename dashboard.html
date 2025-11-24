@@ -1,0 +1,973 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1200" />
+    <title>GEN-RESIST</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/vis-network@9.1.2/standalone/umd/vis-network.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            --bg: #07080b;
+            --panel: #0f1114;
+            --muted: #9fb2d8;
+            --glass: rgba(255, 255, 255, 0.02);
+            --border: rgba(255, 255, 255, 0.04);
+            --grad-1: linear-gradient(135deg, #ff7a66 0%, #ff4966 40%, #a64bff 100%);
+            --grad-2: linear-gradient(135deg, #ffb86b 0%, #ff6ea1 50%, #7a5bff 100%);
+            --accent-glow: rgba(166, 75, 255, 0.12);
+            --accent-text: #eaf2ff;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            background:
+                radial-gradient(1000px 300px at 8% 8%, rgba(166, 75, 255, 0.06), transparent 6%),
+                radial-gradient(900px 300px at 92% 92%, rgba(255, 74, 102, 0.04), transparent 6%),
+                var(--bg);
+            color: var(--accent-text);
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Outer container sized for laptop */
+        .wrap {
+            width: 80vw;
+            margin: 26px auto;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 20px;
+            align-items: start
+        }
+
+        /* --------- SIDEBAR ---------- */
+        .sidebar {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0.00));
+            border-radius: 14px;
+            padding: 18px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            height: 820px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 4px;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .brand .logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            color: white;
+        }
+
+        .brand h2 {
+            margin: 0;
+            font-size: 16px
+        }
+
+        .nav {
+            margin-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+
+        .nav a {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 10px;
+            border-radius: 10px;
+            color: #cfe1ff;
+            text-decoration: none;
+            font-weight: 700;
+            transition: background .12s, transform .12s;
+        }
+
+        .nav a i {
+            width: 22px;
+            text-align: center;
+            color: #bcd3ff
+        }
+
+        .nav a:hover {
+            background: rgba(255, 255, 255, 0.02);
+            transform: translateX(6px)
+        }
+
+        .nav a.active {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.0));
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.01);
+        }
+
+        /* small footer in sidebar */
+        .side-foot {
+            margin-top: auto;
+            font-size: 13px;
+            color: var(--muted);
+            opacity: 0.95
+        }
+
+        /* ---------- MAIN ---------- */
+        .main {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            min-height: 820px;
+        }
+
+        /* top welcome header */
+        .header {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0.00));
+            padding: 16px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
+        }
+
+        .welcome {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .welcome h1 {
+            margin: 0;
+            font-size: 22px
+        }
+
+        .welcome .muted {
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .top-cards {
+            display: flex;
+            gap: 12px;
+            align-items: center
+        }
+
+        .top-card {
+            min-width: 150px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(255, 255, 255, 0.007));
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+        }
+
+        .top-card .num {
+            font-size: 20px;
+            font-weight: 900
+        }
+
+        .top-card .lbl {
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        /* layout body: left column cards + main content */
+        .body-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 18px
+        }
+
+        /* large cards */
+        .card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0.00));
+            border-radius: 14px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55);
+        }
+
+        .card .title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--accent-text);
+            margin-bottom: 6px
+        }
+
+        .small-note {
+            font-size: 13px;
+            color: var(--muted)
+        }
+
+        /* chart area */
+        .charts {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start
+        }
+
+        .chart-large {
+            flex: 1;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+
+        .chart-wrap {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0.00));
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.02)
+        }
+
+        /* network */
+        #network {
+            height: 260px;
+            border-radius: 12px;
+            border: 1px dashed rgba(255, 255, 255, 0.03);
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0.00))
+        }
+
+        /* gene table */
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        th,
+        td {
+            padding: 12px 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            font-size: 14px
+        }
+
+        th {
+            color: #9fb2ff;
+            font-weight: 800
+        }
+
+        .progress {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 999px;
+            overflow: hidden;
+            width: 140px
+        }
+
+        .progress>i {
+            display: block;
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #7a5bff, #ff4966)
+        }
+
+        .impact-num {
+            font-weight: 800;
+            color: #e6f0ff;
+            margin-left: 8px
+        }
+
+        /* treatment list */
+        .treatment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 6px
+        }
+
+        .treatment {
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.03)
+        }
+
+        .treatment h4 {
+            margin: 0 0 6px 0
+        }
+
+        .treatment .meta {
+            font-size: 13px;
+            color: var(--muted)
+        }
+
+        /* footer */
+        .footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 10px
+        }
+
+        /* subtle hover */
+        .card:hover {
+            transform: translateY(-6px);
+            transition: transform .16s
+        }
+
+        .btn {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.00));
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            cursor: pointer;
+            font-weight: 800;
+            color: white;
+        }
+
+        .btn.primary {
+            background: var(--grad-2);
+            color: white;
+            border: none;
+            box-shadow: 0 8px 26px rgba(122, 91, 255, 0.12)
+        }
+
+        /* small utilities */
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .muted {
+            color: var(--muted)
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo"><img class="logo" src="logo.jpeg" alt="" style="height: 100%;"></div>
+                <div>
+                    <h2>GEN-RESIST</h2>
+                    <div class="muted" style="font-size:12px">Genomic antibiotic analysis</div>
+                </div>
+            </div>
+
+            <nav class="nav" aria-label="Main navigation">
+                <a href="#" class="active"><i class="fa-solid fa-house"></i>Dashboard</a>
+                <a href="#"><i class="fa-solid fa-microscope"></i>Analysis</a>
+                <input type="file" id="fileInput" accept=".fasta,.fna,.fa" style="display:none" />
+                <a href="#" id="uploadBtn"><i class="fa-solid fa-file-upload"></i>Upload</a>
+                <a href="#"><i class="fa-solid fa-book"></i>Docs</a>
+                <a href="#"><i class="fa-solid fa-info-circle"></i>About</a>
+            </nav>
+
+        </aside>
+
+        <!-- MAIN -->
+        <main class="main">
+            <!-- HEADER -->
+            <header class="header">
+                <div class="welcome">
+                    <h1>Welcome back, Vandit</h1>
+                    <div class="muted">Here's the latest analysis summary</div>
+                </div>
+
+                <div class="top-cards">
+                    <div class="top-card">
+                        <div class="lbl muted">Total Antibiotics</div>
+                        <div class="num" id="genesAnalyzed">—</div>
+                    </div>
+                    <div class="top-card">
+                        <div class="lbl muted">Resistance Antibiotics</div>
+                        <div class="num" id="resFound">—</div>
+                    </div>
+
+                    <!-- new small stats cards for GC and length_normalized -->
+                    <div class="top-card">
+                        <div class="lbl muted">GC Content</div>
+                        <div class="num" id="gcContent">—</div>
+                    </div>
+                    <div class="top-card">
+                        <div class="lbl muted">Length Norm</div>
+                        <div class="num" id="lenNorm">—</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- BODY GRID -->
+            <div class="body-grid">
+                <div>
+                    <!-- charts -->
+                    <div class="card charts">
+                        <div class="chart-large">
+                            <div class="title">Antibiotic Resistance Analysis</div>
+                            <div class="small-note">Predicted resistance percentage per antibiotic</div>
+                            <div class="chart-wrap" style="flex:1">
+                                <canvas id="resistanceChart" height="260"></canvas>
+                            </div>
+                        </div>
+
+                        <div style="display:flex;justify-content:flex-end;margin-top:8px">
+                            <button class="btn primary" id="exportPDFBtn">Export Report (PDF)</button>
+                        </div>
+                    </div>
+
+                    <!-- gene table -->
+                    <div class="card" style="margin-top:12px">
+                        <div class="title">Gene Details</div>
+                        <div class="small-note">Inspect mechanisms and impact</div>
+                        <div style="margin-top:10px;overflow:auto">
+                            <table id="genesTable">
+                                <thead>
+                                    <tr>
+                                        <th>Gene</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- right column -->
+                <aside>
+                    <div class="card">
+                        <div class="title">Gene Network Visualization</div>
+                        <div class="small-note">Interactive preview</div>
+                        <div id="network"></div>
+                        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+                            <button class="btn" id="fitBtn"><i class="fa-solid fa-compress"></i> Fit</button>
+                            <button class="btn" id="pngBtn"><i class="fa-solid fa-image"></i> Save PNG</button>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top:12px">
+                        <div class="title">Treatment Recommendations</div>
+                        <div class="small-note">Suggested antibiotics</div>
+                        <div class="treatment-list" id="treatmentList">
+                            <!-- populated dynamically -->
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </main>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        // ---------- STATE ----------
+        let antibiotics = [];
+        let genes = [];
+        let net = null;
+        let nodes = null;
+        let edges = null;
+
+        // ---------- UI REFERENCES ----------
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const treatmentListEl = document.getElementById('treatmentList');
+
+        // ---------- Upload flow ----------
+        uploadBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) uploadAndPredict(fileInput.files[0]);
+        });
+
+        async function uploadAndPredict(file) {
+            const url = "http://127.0.0.1:8000/predict"; // ensure backend runs here
+            const form = new FormData();
+            form.append('file', file);
+
+            try {
+                setUIUploading(true, "Uploading genome...");
+                const resp = await fetch(url, { method: 'POST', body: form });
+                if (!resp.ok) throw new Error(`${resp.status} ${resp.statusText}`);
+                const data = await resp.json();
+                console.log(data)
+                setUIUploading(false, "Analysis complete");
+                applyFetchedData(data);
+            } catch (err) {
+                console.error(err);
+                setUIUploading(false, "Error");
+                alert("Failed to connect to backend: " + err.message + "\nIs the backend running on " + url + " ?");
+            }
+        }
+
+        function setUIUploading(isLoading, message) {
+            uploadBtn.disabled = isLoading;
+            uploadBtn.innerHTML = isLoading ? "Processing..." : `<i class="fa-solid fa-file-upload"></i>Upload`;
+        }
+
+        // ---------- Data parsing + fallback strategies ----------
+        function applyFetchedData(data) {
+            // 1) Parse antibiotics/resistances
+            // prefer: predictions + probabilities -> compute percent
+            if (data.predictions && data.probabilities) {
+                antibiotics = Object.keys(data.predictions).map(name => ({
+                    name,
+                    value: Math.round((data.probabilities[name] ?? 0) * 100),
+                    label: data.predictions[name] // Resistant/Susceptible
+                }));
+            } else if (data.predictions) {
+                // predictions present but not probabilities: show 100 for 'Resistant', 0 for 'Susceptible' fallback
+                antibiotics = Object.keys(data.predictions).map(name => ({
+                    name,
+                    value: data.predictions[name] && String(data.predictions[name]).toLowerCase().includes('resist') ? 100 : 0,
+                    label: data.predictions[name]
+                }));
+            } else if (data.antibiotics && Array.isArray(data.antibiotics)) {
+                // accept shape [{name, value}, ...]
+                antibiotics = data.antibiotics.map(a => ({ name: a.name, value: Number(a.value || a.percent || 0) }));
+            } else if (data.results && Array.isArray(data.results)) {
+                // some backends return results list
+                antibiotics = data.results.map(r => ({ name: r.antibiotic || r.name, value: r.value || r.percent || 0 }));
+            } else {
+                // fallback: empty
+                antibiotics = [];
+            }
+
+            // 2) Parse genes
+            if (data.genes && Array.isArray(data.genes) && data.genes.length) {
+                // accept objects with name/mech/impact
+                genes = data.genes.map(g => ({
+                    name: g.name || g.gene || String(g.id || ''),
+                    mech: g.mech || g.mechanism || g.description || '—',
+                    impact: Number(g.impact ?? g.score ?? 50)
+                }));
+            } else if (data.detected_genes && Array.isArray(data.detected_genes)) {
+                // convert simple strings to minimal objects with heuristics
+                genes = data.detected_genes.map(gname => {
+                    const key = String(gname).trim();
+                    const keyLower = key.toLowerCase();
+                    // direct match in hints
+                    return {
+                        name: key,
+                    };
+                });
+            } else {
+                genes = []; // fallback
+            }
+
+            // 3) Update counts
+            document.getElementById('genesAnalyzed').innerText = Math.max(antibiotics.length, 0);
+
+            // resistance count: prefer backend predictions labels for accuracy
+            let resCount = 0;
+            if (data.predictions) {
+                resCount = Object.values(data.predictions).filter(lbl => String(lbl).toLowerCase().includes('resist')).length;
+            } else {
+                resCount = antibiotics.filter(a => Number(a.value) > 50).length;
+            }
+            document.getElementById('resFound').innerText = resCount;
+
+            // 3b) update genome stats display (if present)
+            if (data.genome_stats && typeof data.genome_stats.gc_content === 'number') {
+                document.getElementById('gcContent').innerText = (data.genome_stats.gc_content * 100).toFixed(2) + '%';
+            } else {
+                document.getElementById('gcContent').innerText = '—';
+            }
+            if (data.genome_stats && typeof data.genome_stats.length_normalized !== 'undefined') {
+                document.getElementById('lenNorm').innerText = Number(data.genome_stats.length_normalized).toFixed(3);
+            } else {
+                document.getElementById('lenNorm').innerText = '—';
+            }
+
+            // 4) Update chart, table, network, treatments
+            updateChartFromData();
+            renderGenes(genes);
+            updateNetwork(genes, antibiotics);
+            renderTreatments(antibiotics);
+        }
+
+        // ---------- Render gene table ----------
+        const tbody = document.querySelector('#genesTable tbody');
+        function renderGenes(list) {
+            tbody.innerHTML = '';
+            list.forEach(g => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight:800">${escapeHtml(g.name)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ---------- Chart.js ----------
+        const ctx = document.getElementById('resistanceChart').getContext('2d');
+        function makeGradient(ctx, height, c1, c2) {
+            const g = ctx.createLinearGradient(0, 0, 0, height);
+            g.addColorStop(0, c1); g.addColorStop(1, c2); return g;
+        }
+
+        // initial empty chart
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [], datasets: [{
+                    data: [], borderRadius: 10, maxBarThickness: 44,
+                    backgroundColor: []
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { color: '#c9d8ff', font: { weight: 700 } }, grid: { display: false } },
+                    y: { max: 100, ticks: { color: '#9fb2ff', stepSize: 25 }, grid: { color: 'rgba(255,255,255,0.03)', borderDash: [4, 4] } }
+                }
+            }
+        });
+
+        function updateChartFromData() {
+            const labels = antibiotics.map(a => a.name);
+            const values = antibiotics.map(a => Number(a.value ?? 0));
+            chart.data.labels = labels;
+            chart.data.datasets[0].data = values;
+            // generate per-bar gradients (requires chart area known)
+            chart.data.datasets[0].backgroundColor = labels.map((_, idx) => {
+                const palettes = [
+                    ['#ff6a6a', '#cc3a9a'],
+                    ['#ff8a5b', '#ff4d70'],
+                    ['#ffa84c', '#ff6ea1'],
+                    ['#7ce0bf', '#4aa3ff'],
+                    ['#9fb2ff', '#7a5bff']
+                ];
+                const p = palettes[idx % palettes.length];
+                const area = chart.chartArea;
+                if (!area) return p[0];
+                return makeGradient(ctx, area.bottom - area.top, p[0], p[1]);
+            });
+            chart.update();
+        }
+
+        // ---------- vis-network (dynamic) ----------
+        const networkContainer = document.getElementById('network');
+
+        // initialize with empty dataset to preserve layout
+        nodes = new vis.DataSet([]);
+        edges = new vis.DataSet([]);
+        net = new vis.Network(networkContainer, { nodes, edges }, {
+            interaction: { hover: true, dragNodes: true, zoomView: true },
+            physics: { stabilization: true, barnesHut: { gravitationalConstant: -1600, springConstant: 0.02 } },
+            nodes: { font: { color: '#0b0b0f', size: 14 } },
+            edges: { font: { align: 'middle', size: 15, color: '#fff' }, color: { color: 'rgba(0,0,0,1)' } },
+        });
+
+        function updateNetwork(genesList, antibioticsList) {
+            // Ensure network options favor high-contrast rendering on dark background
+            try {
+                net.setOptions({
+                    nodes: {
+                        font: { color: '#ffffff', size: 14, face: 'Inter' },
+                        borderWidth: 2
+                    },
+                    edges: {
+                        color: {
+                            color: '#ffffff66',   // normal
+                            highlight: '#ffffff',
+                            hover: '#ffffff'
+                        },
+                        width: 1,
+                        arrows: {
+                            to: { enabled: true, type: 'arrow', scaleFactor: 0.6 }
+                        },
+                        font: { color: '#ffffffcc', strokeWidth: 0, size: 11, face: 'Inter' },
+                        smooth: { type: 'dynamic' }
+                    },
+                    interaction: {
+                        hover: true,
+                        tooltipDelay: 100
+                    },
+                    physics: {
+                        stabilization: true,
+                        barnesHut: { gravitationalConstant: -1600, springConstant: 0.02, springLength: 120 }
+                    }
+                });
+            } catch (e) {
+                // ignore if net not initialized yet
+            }
+
+            // Clear existing
+            nodes.clear();
+            edges.clear();
+
+            // Add a bright plasmid node if there are genes
+            let plasmidId = null;
+            if (genesList.length > 0) {
+                plasmidId = 1000;
+                nodes.add({
+                    id: plasmidId,
+                    label: 'Plasmid',
+                    shape: 'diamond',
+                    size: 26,
+                    color: { background: '#ffd54f', border: '#ffb300' },
+                    font: { color: '#F4BB61', size: 14 }
+                });
+            }
+
+            // Color palette (high contrast)
+            const colorMap = {
+                high: { background: '#ff4d6d', border: '#ff1e4d' },   // strong red/pink
+                mid: { background: '#ffb84d', border: '#ff9933' },   // orange/gold
+                low: { background: '#4dd0e1', border: '#26c6da' }    // cyan
+            };
+
+            // Add gene nodes
+            let idCounter = 1;
+            genesList.forEach(g => {
+                const impact = Number(g.impact ?? 50);
+                let cmap = colorMap.low;
+                if (impact > 70) cmap = colorMap.high;
+                else if (impact > 40) cmap = colorMap.mid;
+
+                nodes.add({
+                    id: idCounter,
+                    label: g.name,
+                    shape: 'dot',
+                    size: Math.max(12, Math.min(28, 8 + impact / 4)), // more visible scaling
+                    color: cmap,
+                    font: { color: '#F4BB61', size: 14 } // dark text on bright node
+                });
+
+                // Connect plasmid -> gene (if plasmid exists)
+                if (plasmidId) {
+                    edges.add({
+                        from: plasmidId,
+                        to: idCounter,
+                        label: 'carries',
+                        arrows: 'to',
+                        color: { color: '#ffffff88', highlight: '#ffffff', hover: '#ffffff' },
+                        font: { color: '#ffffffcc', size: 11 }
+                    });
+                }
+                idCounter++;
+            });
+
+            // Add antibiotic nodes (limited to first 8 for clarity)
+            antibioticsList.slice(0, 8).forEach((a, idx) => {
+                const aid = 2000 + idx;
+                nodes.add({
+                    id: aid,
+                    label: a.name,
+                    shape: 'box',
+                    size: 20,
+                    color: { background: '#81c784', border: '#4caf50' },
+                    font: { color: '#000000', size: 13 }
+                });
+
+                // Connect antibiotic -> gene if gene impact high enough (visual heuristic)
+                genesList.forEach((g, gi) => {
+                    if ((g.impact ?? 50) > 40) {
+                        edges.add({
+                            from: aid,
+                            to: gi + 1,
+                            label: '',
+                            arrows: 'to',
+                            color: { color: '#ffffff66', highlight: '#ffffff', hover: '#ffffff' },
+                            font: { color: '#ffffffcc', size: 10 }
+                        });
+                    }
+                });
+            });
+
+            // Minor layout niceties: bring plasmid to center, then fit
+            try {
+                if (plasmidId) {
+                    // pin plasmid briefly to center then release physics
+                    nodes.update([{ id: plasmidId, fixed: { x: false, y: false } }]);
+                }
+                net.fit({ animation: { duration: 300 } });
+            } catch (err) {
+                // ignore if fit fails
+            }
+        }
+
+        document.getElementById('fitBtn').onclick = () => net.fit({ animation: { duration: 400 } });
+        document.getElementById('pngBtn').addEventListener('click', () => {
+            html2canvas(networkContainer, { backgroundColor: null, scale: 2 }).then(cnv => {
+                const a = document.createElement('a');
+                a.href = cnv.toDataURL('image/png'); a.download = 'network.png'; a.click();
+            });
+        });
+
+        // ---------- EXPORT PDF (chart + network + table) ----------
+        async function exportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'portrait', format: 'a4' });
+            const margin = 14;
+            let y = 18;
+
+            doc.setFontSize(16);
+            doc.setTextColor(20, 40, 90);
+            doc.text('GEN-RESIST — Analysis Report', margin, y);
+            y += 8;
+            doc.setFontSize(9); doc.setTextColor(90, 90, 90);
+            doc.text(`Generated: ${new Date().toLocaleString()}`, margin, y);
+            y += 8;
+
+            // Chart
+            const chartCanvas = document.getElementById('resistanceChart');
+            const chartData = chartCanvas.toDataURL('image/png', 1.0);
+            doc.addImage(chartData, 'PNG', margin, y, 180, 60);
+            y += 66;
+
+            // Network snapshot
+            const netImg = await html2canvas(networkContainer, { backgroundColor: '#0b0c10', scale: 2 });
+            doc.addImage(netImg.toDataURL('image/png'), 'PNG', margin, y, 180, 60);
+            y += 66;
+
+            // Genes table
+            doc.setFontSize(12); doc.setTextColor(30, 30, 60); doc.text('Gene Details', margin, y); y += 6;
+            doc.setFontSize(9); doc.setTextColor(30, 30, 30);
+            const col1 = margin, col2 = margin + 40, col3 = margin + 140;
+            doc.text('Gene', col1, y); doc.text('Mechanism', col2, y); doc.text('Impact', col3, y); y += 6;
+            genes.forEach(g => {
+                if (y > 270) { doc.addPage(); y = 18; }
+                doc.text(g.name, col1, y);
+                const mechLines = doc.splitTextToSize(g.mech, 90);
+                doc.text(mechLines, col2, y);
+                doc.text(String(g.impact) + '%', col3, y);
+                y += Math.max(6 * mechLines.length, 8);
+            });
+
+            doc.save('GEN-RESIST-report.pdf');
+        }
+        document.getElementById('exportPDFBtn').addEventListener('click', exportPDF);
+
+        // ---------- Treatment Recommendations render ----------
+        function renderTreatments(antibioticsList) {
+            treatmentListEl.innerHTML = '';
+            // pick best candidates: antibiotics with lowest resistance values
+            const sorted = [...antibioticsList].sort((a, b) => Number(a.value) - Number(b.value));
+            // top 4 suggestions (or less)
+            sorted.slice(0, 4).forEach((a, idx) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'treatment';
+                let cls = 'recommended';
+                if (a.value > 70) cls = 'avoid';
+                else if (a.value > 40) cls = 'caution';
+                wrapper.innerHTML = `<h4>${escapeHtml(a.name)}</h4>
+                    <div class="meta muted">${Number(a.value)}% resistance`;
+                treatmentListEl.appendChild(wrapper);
+            });
+        }
+
+        // ---------- small niceties ----------
+        document.addEventListener('mouseover', e => {
+            const tr = e.target.closest('tr');
+            if (tr && tr.parentElement.tagName === 'TBODY') tr.style.background = 'linear-gradient(90deg, rgba(255,255,255,0.01), transparent)';
+        });
+        document.addEventListener('mouseout', e => {
+            const tr = e.target.closest('tr');
+            if (tr && tr.parentElement.tagName === 'TBODY') tr.style.background = 'transparent';
+        });
+
+        // ---------- helpers ----------
+        function escapeHtml(s) {
+            if (s == null) return '';
+            return String(s).replace(/[&<>"']/g, function (m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+            });
+        }
+
+        // preload nothing: chart/table empty until upload
+        updateChartFromData();
+        renderGenes([]);
+        renderTreatments([]);
+
+        // expose a dev/test function to load sample data quickly if needed
+        window.__loadSample = function () {
+            const sample = {
+                detected_genes: ["aac(6')-Ib", "mcr-1", "qnrB", "tetB"],
+                genome_stats: { gc_content: 0.5058407187461853, length_normalized: 1 },
+                predictions: {
+                    "Ampicillin": "Susceptible",
+                    "Amoxicillin": "Susceptible",
+                    "Piperacillin": "Susceptible",
+                    "Ceftriaxone": "Susceptible",
+                    "Cefotaxime": "Susceptible",
+                    "Ceftazidime": "Susceptible",
+                    "Cefepime": "Susceptible",
+                    "Meropenem": "Susceptible",
+                    "Imipenem": "Susceptible",
+                    "Ertapenem": "Susceptible",
+                    "Ciprofloxacin": "Susceptible",
+                    "Levofloxacin": "Susceptible",
+                    "Nalidixic_acid": "Resistant",
+                    "Gentamicin": "Susceptible",
+                    "Tobramycin": "Susceptible",
+                    "Amikacin": "Susceptible",
+                    "Streptomycin": "Susceptible",
+                    "Kanamycin": "Susceptible",
+                    "Tetracycline": "Susceptible",
+                    "Doxycycline": "Susceptible",
+                    "Minocycline": "Susceptible",
+                    "Azithromycin": "Susceptible",
+                    "Erythromycin": "Susceptible",
+                    "Trimethoprim": "Susceptible",
+                    "Sulfamethoxazole": "Susceptible",
+                    "Chloramphenicol": "Susceptible",
+                    "Nitrofurantoin": "Susceptible",
+                    "Fosfomycin": "Susceptible",
+                    "Colistin": "Resistant",
+                    "Tigecycline": "Susceptible"
+                },
+                probabilities: {
+                    "Ampicillin": 0.049742840230464935,
+                    "Amoxicillin": 0.04454991593956947,
+                    "Piperacillin": 0.08033569157123566,
+                    "Ceftriaxone": 0.15581144392490387,
+                    "Cefotaxime": 0.16191761195659637,
+                    "Ceftazidime": 0.15520302951335907,
+                    "Cefepime": 0.2859717607498169,
+                    "Meropenem": 0.37778186798095703,
+                    "Imipenem": 0.22907431423664093,
+                    "Ertapenem": 0.44862350821495056,
+                    "Ciprofloxacin": 0.248703733086586,
+                    "Levofloxacin": 0.15043260157108307,
+                    "Nalidixic_acid": 0.5067733526229858,
+                    "Gentamicin": 0.4555921256542206,
+                    "Tobramycin": 0.22857950627803802,
+                    "Amikacin": 0.0547022745013237,
+                    "Streptomycin": 0.2712399661540985,
+                    "Kanamycin": 0.29094427824020386,
+                    "Tetracycline": 0.14964722096920013,
+                    "Doxycycline": 0.17799986898899078,
+                    "Minocycline": 0.48414453864097595,
+                    "Azithromycin": 0.07619988173246384,
+                    "Erythromycin": 0.04781101271510124,
+                    "Trimethoprim": 0.0855560302734375,
+                    "Sulfamethoxazole": 0.05043654516339302,
+                    "Chloramphenicol": 0.4606786370277405,
+                    "Nitrofurantoin": 0.23398274183273315,
+                    "Fosfomycin": 0.05484035983681679,
+                    "Colistin": 0.8500000238418579,
+                    "Tigecycline": 0.10278605669736862
+                }
+            };
+            applyFetchedData(sample);
+        };
+    </script>
+</body>
+
+</html>

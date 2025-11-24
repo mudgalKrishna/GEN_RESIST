@@ -1,142 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMR Prediction System</title>
-    <style>
-        body { font-family: sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; background-color: #f4f4f9; }
-        .container { background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1 { color: #2c3e50; text-align: center; }
-        .upload-box { border: 2px dashed #3498db; padding: 2rem; text-align: center; margin-bottom: 2rem; border-radius: 8px; }
-        button { background: #3498db; color: white; border: none; padding: 10px 20px; font-size: 1rem; cursor: pointer; border-radius: 5px; margin-top: 10px; }
-        button:hover { background: #2980b9; }
-        button:disabled { background: #ccc; }
-        #results { margin-top: 2rem; display: none; }
-        .stat-box { background: #ecf0f1; padding: 10px; margin: 5px 0; border-radius: 4px; }
-        .resistant { color: #e74c3c; font-weight: bold; }
-        .susceptible { color: #27ae60; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
-        th { background-color: #f8f9fa; }
-    </style>
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
-
-<div class="container">
-    <h1>🧬 AMR Gen-Resist Predictor</h1>
-    
-    <div class="upload-box">
-        <h3>Upload Genome File (.fasta)</h3>
-        <input type="file" id="fileInput" accept=".fasta,.fna,.fa">
-        <br>
-        <button onclick="uploadFile()" id="predictBtn">Analyze Genome</button>
-        <p id="statusText" style="color: gray; margin-top: 10px;"></p>
-    </div>
-
-    <div id="results">
-        <h2>📊 Analysis Results</h2>
-        
-        <div class="stat-box">
-            <strong>Detected Genes:</strong> <span id="genesList"></span>
+    <img class="blob1" src="whiteBlob.png" alt="">
+    <img class="blob2" src="whiteBlob.png" alt="">
+    <nav>
+        <div class="brandName"><img src="logo.jpeg" alt=""> GEN-RESIST</div>
+        <div class="navItems">
+            <div class="navItem">Home</div>
+            <div class="navItem">About</div>
+            <div class="navItem" onclick="window.location='./dashboard.html'">Demo</div>
         </div>
-        <div class="stat-box">
-            <strong>Genome Stats:</strong> GC Content: <span id="gcContent"></span> | Length Norm: <span id="lenNorm"></span>
+        <div class="getStarted">
+            <div class="getStartedBox" onclick="window.location='./dashboard.html'">
+                Get Started&nbsp; <i class="bi bi-arrow-right"></i>
+            </div>
         </div>
-
-        <h3>Antibiotic Resistance Profile</h3>
-        <table id="resTable">
-            <thead>
-                <tr>
-                    <th>Antibiotic</th>
-                    <th>Prediction</th>
-                    <th>Probability</th>
-                </tr>
-            </thead>
-            <tbody>
-                </tbody>
-        </table>
-    </div>
-</div>
-
-<script>
-    async function uploadFile() {
-        const fileInput = document.getElementById('fileInput');
-        const statusText = document.getElementById('statusText');
-        const btn = document.getElementById('predictBtn');
-        
-        if (fileInput.files.length === 0) {
-            alert("Please select a file first!");
-            return;
-        }
-
-        const file = fileInput.files[0];
-        const formData = new FormData();
-        formData.append("file", file);
-
-        // UI Loading State
-        btn.disabled = true;
-        btn.innerText = "Processing...";
-        statusText.innerText = "Uploading to AI Model...";
-        document.getElementById('results').style.display = 'none';
-
-        try {
-            // BACKEND URL - Make sure port matches your uvicorn port
-            const response = await fetch("http://127.0.0.1:8000/predict", {
-                method: "POST",
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error(`Server Error: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            displayResults(data);
-            statusText.innerText = "Analysis Complete!";
-
-        } catch (error) {
-            console.error(error);
-            statusText.innerText = "Error: " + error.message;
-            alert("Failed to connect to backend. Is it running?");
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "Analyze Genome";
-        }
-    }
-
-    function displayResults(data) {
-        // Show container
-        document.getElementById('results').style.display = 'block';
-
-        // Fill Stats
-        document.getElementById('genesList').innerText = data.detected_genes.length > 0 ? data.detected_genes.join(", ") : "None detected";
-        document.getElementById('gcContent').innerText = (data.genome_stats.gc_content * 100).toFixed(2) + "%";
-        document.getElementById('lenNorm').innerText = data.genome_stats.length_normalized.toFixed(4);
-
-        // Fill Table
-        const tbody = document.querySelector("#resTable tbody");
-        tbody.innerHTML = ""; // Clear previous
-
-        // Loop through predictions object
-        for (const [antibiotic, prediction] of Object.entries(data.predictions)) {
-            const prob = data.probabilities[antibiotic];
-            const row = `
-                <tr>
-                    <td>${antibiotic}</td>
-                    <td class="${prediction.toLowerCase()}">${prediction}</td>
-                    <td>
-                        <div style="background:#eee; width:100px; height:10px; display:inline-block; margin-right:5px; border-radius:5px;">
-                            <div style="background:${prediction === 'Resistant' ? '#e74c3c' : '#27ae60'}; width:${prob*100}%; height:100%; border-radius:5px;"></div>
-                        </div>
-                        ${(prob * 100).toFixed(1)}%
-                    </td>
-                </tr>
-            `;
-            tbody.innerHTML += row;
-        }
-    }
-</script>
-
+    </nav>
+    <main>
+        <img class="grid" src="grid.png" alt="">
+        <div class="title">
+            Bacteria evolve <br> so should, <i style="font-weight: 200;">testing</i>
+        </div>
+        <div class="tagline">
+            Upload your genomic data and watch our AI analyze antibiotic resistance patterns in minutes
+        </div>
+        <div class="preview">
+            <img src="sampleImage.png" alt="">
+        </div>
+    </main>
+    <section class="features">
+        <div class="headingBox">
+            <div class="headingTag">
+                Features
+            </div>
+            <div class="headingTitle">
+                Features at Your Fingertips
+            </div>
+        </div>
+        <div class="featuresBox">
+            <div class="feature">
+                <div class="featureIcon">
+                    <i class="bi bi-cpu"></i>
+                </div>
+                <div class="featureDesc">
+                    <div class="featureHeading">Smart Analysis</div>
+                    <div class="featureTagline">Our AI extracts resistance patterns, gene interactions, and antibiotic susceptibility from your genomic data.</div>
+                </div>
+            </div>
+            <div class="feature">
+                <div class="featureIcon"><i class="bi bi-lightbulb"></i></div>
+                <div class="featureDesc">
+                    <div class="featureHeading">Treatment Insights</div>
+                    <div class="featureTagline">Generate evidence-based antibiotic recommendations with confidence scores and resistance predictions</div>
+                </div>
+            </div>
+            <div class="feature">
+                <div class="featureIcon"><i class="bi bi-code-slash"></i></i></div>
+                <div class="featureDesc">
+                    <div class="featureHeading">Ready to Deploy</div>
+                    <div class="featureTagline">Get complete analysis reports, visualizations, and network graphs ready for clinical use</div>
+                </div>
+            </div>
+            <div class="feature">
+                <div class="featureIcon"><i class="bi bi-gear"></i></div>
+                <div class="featureDesc">
+                    <div class="featureHeading">Adaptive Engine</div>
+                    <div class="featureTagline">Continuously learns from new genomic data to enhance prediction accuracy and resistance modeling.</div>
+                </div>
+            </div>
+            <div class="feature">
+                <div class="featureIcon"><i class="bi bi-search"></i></i></div>
+                <div class="featureDesc">
+                    <div class="featureHeading">Deep Trace</div>
+                    <div class="featureTagline">Tracks the origin and evolution of resistance genes through advanced lineage mapping.</div>
+                </div>
+            </div>
+            <div class="feature">
+                <div class="featureIcon"><i class="bi bi-bar-chart"></i></div>
+                <div class="featureDesc">
+                    <div class="featureHeading">Interactive Dashboard</div>
+                    <div class="featureTagline">Visualize real-time results, explore resistance trends, and customize insights with an intuitive interface.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer>
+        GEN-RESIST
+    </footer>
 </body>
+
 </html>
