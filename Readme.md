@@ -1,273 +1,223 @@
-🧬 GEN_RESIST
-Antimicrobial Resistance Prediction Using Graph Attention Networks
+<div align="center">
 
-[](LICENSEn](https://img.shields.io/badge/python-3.8+-.100ast, model-driven web application for predicting antimicrobial resistance from bacterial whole-genome sequences
+# 🧬 GEN_RESIST
 
-📋 Table of Contents
-Overview
+### Antimicrobial Resistance Prediction Using Graph Attention Networks
 
-Features
+<img src="https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python"> <img src="https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white" alt="PyTorch"> <img src="https://img.shields.io/badge/Graph_Neural_Networks-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white" alt="GNN"> <img src="https://img.shields.io/badge/Bioinformatics-2E7D32?style=for-the-badge&logo=dna&logoColor=white" alt="Bio">
 
-Architecture
+**🚀 Fast • 🎯 Accurate • 🧬 AI-Powered**
 
-Getting Started
+</div>
 
-API Documentation
+---
 
-Deployment
+## 🌟 Overview
 
-Technology Stack
+<table>
+<tr>
+<td width="50%">
 
-Contributing
+**GEN_RESIST** is an AI-powered application that predicts antimicrobial resistance (AMR) in bacteria from whole-genome sequences. Traditional lab testing takes 48-72 hours, but our Graph Attention Network model delivers predictions in seconds.
 
-License
+</td>
+<td width="50%">
 
-🔬 Overview
-GEN_RESIST addresses the critical global health challenge of antimicrobial resistance (AMR) by leveraging state-of-the-art Graph Attention Networks to predict bacterial resistance patterns from whole-genome sequencing data.
+### Key Highlights
+- 🧬 Analyzes bacterial genome FASTA files
+- 🎯 Predicts resistance to 30 antibiotics
+- 📊 Provides confidence scores
+- 🧪 Detects known resistance genes
+- ⚡ Results in seconds
 
-The Challenge: Traditional AMR testing can take days, delaying critical treatment decisions.
+</td>
+</tr>
+</table>
 
-Our Solution: Upload a bacterial genome FASTA file and receive instant predictions across 30 antibiotics with confidence scores and detected resistance genes.
+---
 
-✨ Features
-🔹 Fast Predictions – Upload genome files and get results in seconds
-🔹 Comprehensive Coverage – Predictions for 30 different antibiotics
-🔹 Confidence Scoring – Probability scores for each prediction
-🔹 Gene Detection – Identifies known resistance genes from CARD database
-🔹 Interactive Dashboard – Clean, intuitive web interface
-🔹 REST API – Easy integration with existing workflows
-🔹 Production Ready – Fully containerized and cloud-deployable
+## 🎯 The Problem
 
-🏗️ Architecture
-GEN_RESIST follows a modern microservices architecture with clear separation of concerns:
+> **Antimicrobial resistance kills 1.27 million people annually** and is one of the top global health threats.
 
-Frontend
+Traditional AMR testing:
+- ⏰ Takes 2-3 days for results
+- 💰 Expensive lab procedures
+- 🔬 Requires specialized equipment
+- 📉 Delays critical treatment decisions
 
-Technology: HTML5, CSS3, JavaScript
+---
 
-Hosting: GitHub Pages
+## 💡 Our Solution
 
-Function: User interface for file upload and result visualization
+GEN_RESIST uses cutting-edge **Graph Attention Networks (GAT)** to predict resistance directly from genomic data:
 
-Backend
+✅ **Instant Predictions** - Upload genome, get results in seconds  
+✅ **High Accuracy** - Trained on validated AMR datasets  
+✅ **Multi-Drug Analysis** - 30 antibiotics simultaneously  
+✅ **Gene Detection** - Identifies resistance mechanisms  
+✅ **User-Friendly** - Simple web interface, no bioinformatics expertise needed  
 
-Technology: FastAPI + Uvicorn
+---
 
-Hosting: Render (Docker container)
+## 🔬 How It Works
 
-Function: REST API serving prediction endpoints
+<div align="center">
 
-ML Model
+### The Pipeline
 
-Architecture: Graph Attention Network (GAT)
 
-Input: K-mer co-occurrence graphs with genome features
 
-Output: Resistance probabilities for 30 antibiotics
+</div>
 
-Workflow
+### 1️⃣ K-mer Extraction
 
-text
-User uploads FASTA → Frontend sends to API → Backend preprocesses genome
-→ Extracts k-mers → Builds graph → GAT model inference → Returns predictions
-🚀 Getting Started
-Prerequisites
+The genome sequence is broken into overlapping k-mers (short DNA sequences of length k=11). We extract canonical k-mers using reverse complements to reduce redundancy.
 
-Python 3.8 or higher
+**Example:**
 
-pip package manager
 
-Git
+### 2️⃣ Graph Construction
 
-Local Installation
+K-mers become nodes in a graph. Edges connect k-mers that appear close together (within a sliding window) in the genome, forming a **co-occurrence graph** that captures local sequence patterns.
 
-Clone the repository:
+**Graph Properties:**
+- Nodes: Top 5000 most frequent k-mers
+- Edges: Co-occurrence within 10-position window
+- Bidirectional: Each edge goes both ways
 
-bash
-git clone https://github.com/yourusername/GEN_RESIST.git
-cd GEN_RESIST
-Create and activate virtual environment:
+### 3️⃣ Feature Engineering
 
-bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-Install dependencies:
+We compute three types of features:
 
-bash
-pip install -r requirements.txt
-Running Locally
+**Genome Features:**
+- **GC Content** - Percentage of G and C nucleotides (0-1)
+- **Normalized Length** - Genome length / 5,000,000 (capped at 1.0)
+- **N Fraction** - Proportion of ambiguous nucleotides
 
-Start the FastAPI backend:
+**Gene Features:**
+- Binary presence vector for 15 known resistance genes from CARD database
+- Simple hash-based detection on first 200kb of sequence
 
-bash
-uvicorn backend:app --host 0.0.0.0 --port 8000 --reload
-The API will be available at http://localhost:8000
+**Graph Features:**
+- K-mer node embeddings learned during training
+- Attention-weighted neighbor aggregation
 
-Open the frontend by serving the HTML files or opening index.html in your browser.
+### 4️⃣ Graph Attention Network
 
-📡 API Documentation
-Base URL
+The GAT model processes the graph through multiple layers:
 
-Local: http://localhost:8000
+**Architecture:**
 
-Production: https://your-service.onrender.com
 
-Endpoints
+**Key Mechanisms:**
+- **Multi-head Attention**: Learns different k-mer relationship patterns
+- **Graph Pooling**: Aggregates node features to genome-level representation
+- **Feature Fusion**: Combines learned graph features with domain knowledge (genes, GC content)
+- **Dropout (0.3)**: Prevents overfitting
 
-GET /
+### 5️⃣ Prediction & Ensemble
 
-Health check and service information
+**Base Model Output:**
+- Raw logits for 30 antibiotics
+- Apply sigmoid to get probabilities (0-1)
 
-Response:
+**Ensemble Boost:**
+- If resistance genes detected, boost corresponding antibiotic probabilities
+- Example: blaCTX-M-15 detected → Ampicillin, Ceftriaxone probabilities set to max(current, 0.85)
 
-json
-{
-  "service": "AMR Prediction API",
-  "status": "running",
-  "device": "cuda",
-  "model": "MemoryEfficientGAT",
-  "antibiotics": 30,
-  "genes": 15
-}
-POST /predict
+**Final Prediction:**
+- Probability > 0.5 → "Resistant"
+- Probability ≤ 0.5 → "Susceptible"
 
-Upload genome and receive AMR predictions
 
-Request:
 
-Method: POST
+---
 
-Content-Type: multipart/form-data
 
-Body: file (FASTA format)
+### Interpretation Guide
 
-Response:
+| Probability | Confidence | Interpretation |
+|------------|------------|----------------|
+| 0.9 - 1.0 | Very High | Strong resistance signal |
+| 0.7 - 0.9 | High | Likely resistant |
+| 0.5 - 0.7 | Moderate | Weak resistance signal |
+| 0.3 - 0.5 | Moderate | Weak susceptibility signal |
+| 0.1 - 0.3 | High | Likely susceptible |
+| 0.0 - 0.1 | Very High | Strong susceptibility signal |
 
-json
-{
-  "file_name": "genome.fasta",
-  "predictions": {
-    "Ampicillin": "Resistant",
-    "Ciprofloxacin": "Susceptible"
-  },
-  "probabilities": {
-    "Ampicillin": 0.91,
-    "Ciprofloxacin": 0.13
-  },
-  "detected_genes": ["blaCTX-M-15", "qnrS1"],
-  "genome_stats": {
-    "gc_content": 0.51,
-    "length_normalized": 0.87
-  }
-}
-GET /antibiotics
+**Detected Genes** indicate known resistance mechanisms found in the genome, which provide additional evidence for the predictions.
 
-List all antibiotics covered by the model
+---
 
-Response:
+## 🎯 Supported Antibiotics (30 Total)
 
-json
-{
-  "count": 30,
-  "antibiotics": ["Ampicillin", "Ciprofloxacin", "..."]
-}
-GET /genes
+<div align="center">
 
-List all resistance genes in database
+| Class | Antibiotics |
+|-------|------------|
+| **β-lactams** | Ampicillin, Amoxicillin, Piperacillin, Ceftriaxone, Cefotaxime, Ceftazidime, Cefepime |
+| **Carbapenems** | Meropenem, Imipenem, Ertapenem |
+| **Fluoroquinolones** | Ciprofloxacin, Levofloxacin, Nalidixic acid |
+| **Tetracyclines** | Tetracycline, Doxycycline |
+| **Aminoglycosides** | Gentamicin, Streptomycin, Kanamycin, Tobramycin |
+| **Macrolides** | Azithromycin, Erythromycin |
+| **Glycopeptides** | Vancomycin |
+| **Polymyxins** | Colistin |
+| **Others** | Chloramphenicol, Rifampicin, Trimethoprim, Sulfamethoxazole |
 
-Response:
+</div>
 
-json
-{
-  "count": 15,
-  "genes": ["blaCTX-M-15", "blaTEM-1", "..."]
-}
-GET /config
+---
 
-Model configuration details
+## 🧬 Resistance Gene Database (15 Genes)
 
-Response:
+We detect the following high-impact resistance genes from the CARD database:
 
-json
-{
-  "k_mer_size": 11,
-  "num_kmers": 50000,
-  "num_antibiotics": 30,
-  "num_genes": 15,
-  "device": "cuda",
-  "model_class": "MemoryEfficientGAT"
-}
-🐳 Deployment
-Docker
+**β-lactamases (Extended-spectrum & Carbapenemases):**
+- blaCTX-M-15 (ESBL - cephalosporin resistance)
+- blaTEM-1 (penicillinase)
+- blaNDM-1 (carbapenemase - broad spectrum)
+- blaKPC (carbapenemase)
 
-Build the image:
+**Quinolone Resistance:**
+- qnrS1 (plasmid-mediated quinolone resistance)
+- qnrB
+- gyrA (chromosomal mutations)
 
-bash
-docker build -t gen-resist-api .
-Run the container:
+**Tetracycline Efflux:**
+- tetA (efflux pump)
+- tetM (ribosomal protection)
 
-bash
-docker run -p 8000:8000 gen-resist-api
-Render
+**Colistin Resistance:**
+- mcr-1 (mobile colistin resistance)
+- mcr-2
 
-Push your repository to GitHub
+**Glycopeptide Resistance:**
+- vanA (vancomycin resistance)
 
-Create a new Web Service on Render
+**Others:**
+- ermB (macrolide resistance)
+- aac(6')-Ib (aminoglycoside modification)
 
-Connect your GitHub repository
+---
 
-Render automatically detects render.yaml and builds from Dockerfile
+## 🏗️ System Architecture
 
-Your API will be deployed at https://your-service.onrender.com
+<div align="center">
 
-Frontend (GitHub Pages)
+### Component Overview
 
-Push frontend files to a GitHub repository
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| 🌐 **Frontend** | HTML/CSS/JavaScript | User interface for file upload and visualization |
+| ⚙️ **Backend** | FastAPI + Uvicorn | REST API handling requests and preprocessing |
+| 🧠 **ML Model** | PyTorch + PyTorch Geometric | GAT neural network for resistance prediction |
+| 📊 **Preprocessing** | Biopython + NumPy | Genome parsing, k-mer extraction, graph building |
+| 🐳 **Deployment** | Docker + Render | Containerized cloud hosting |
+| 📁 **Storage** | Local JSON/PT files | Model weights and configuration |
 
-Enable GitHub Pages in repository settings
+</div>
 
-Update the API base URL in your JavaScript to point to your Render backend
 
-🛠️ Technology Stack
-Machine Learning
-
-PyTorch
-
-PyTorch Geometric
-
-Graph Attention Networks
-
-Backend
-
-FastAPI
-
-Uvicorn
-
-Pydantic
-
-Data Processing
-
-Biopython
-
-NumPy
-
-Python
-
-Frontend
-
-HTML5
-
-CSS3
-
-JavaScript (Vanilla)
-
-DevOps
-
-Docker
-
-Render
-
-GitHub Pages
-
-GitHub Actions (optional CI/CD)
 
