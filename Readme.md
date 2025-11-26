@@ -40,6 +40,36 @@ We build a **graph where k-mers are nodes** and edges connect k-mers that appear
 - Detected resistance genes (from CARD database)
 - Genome stats (GC content, length)
 
+## How to use this application
+
+### Option 1: Web Interface 
+1.**Clone the repo and setup**
+- cd GEN_RESIST
+- pip install -r requirements.txt
+
+2. **Prepare your genome file:**
+   - Must be in FASTA format (`.fasta`, `.fna`, or `.fa`)
+   - Whole bacterial genome sequence
+   - Should be assembled (not raw reads)
+   - Works best with complete genomes
+
+3. **Upload and predict:**
+   - Click "Choose File" or drag-and-drop your FASTA
+   - Click "Predict Resistance"
+   - Wait a few seconds for results
+
+4. **Interpret results:**
+   - You'll see predictions for 30 antibiotics
+   - "Resistant" = bacteria likely resistant (probability > 0.5)
+   - "Susceptible" = antibiotic likely effective (probability < 0.5)
+   - Check probability scores for confidence:
+     - 0.9+ = very confident
+     - 0.6-0.9 = confident
+     - 0.4-0.6 = uncertain (borderline)
+     - <0.4 = confident susceptible
+   - Review detected resistance genes for supporting evidence
+
+  
 
 ## Antibiotics covered
 
@@ -80,6 +110,8 @@ We check for 15 high-impact genes:
 - **Surveillance:** Track resistance trends in populations
 - **Research:** Study genotype-phenotype relationships
 - **Education:** Demonstrate ML in genomics
+
+
 
 
 
