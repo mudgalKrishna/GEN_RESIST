@@ -4,7 +4,7 @@
 
 ![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
+
 
 ## What is this?
 
@@ -80,6 +80,7 @@ We check for 15 high-impact genes:
 - **Surveillance:** Track resistance trends in populations
 - **Research:** Study genotype-phenotype relationships
 - **Education:** Demonstrate ML in genomics
+
 
 
 
