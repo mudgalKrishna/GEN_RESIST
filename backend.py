@@ -164,14 +164,27 @@ def compute_genome_features(seq):
         seq.count('N') / len(seq) if len(seq) > 0 else 0
     ], dtype=np.float32)
 
-def detect_card_genes_simple(seq, card_genes_list):
+def detect_card_genes_simple(seq, card_genes_list, k=15, min_hits=3):
+    """Real CARD gene detection via k-mer exact matching"""
+    seq = seq.upper()
     card_vec = np.zeros(len(card_genes_list), dtype=np.float32)
-    seq_sample = seq[:200000]
+    
+    seq_kmers = set(extract_kmers_with_rc(seq, k))
+    
     for i, gene in enumerate(card_genes_list):
-        if hash(seq_sample[:1000] + gene) % 10 < 3:
-            card_vec[i] = 1.0
+        gene = gene.upper()
+        if len(gene) < k:
+            continue
+        
+        gene_kmers = set(extract_kmers_with_rc(gene, k))
+        
+        shared = len(seq_kmers.intersection(gene_kmers))
+        
+        if shared >= min_hits:
+            coverage = shared / max(len(gene_kmers), 1)
+            card_vec[i] = min(coverage, 1.0)
+    
     return card_vec
-
 def preprocess_genome(genome_path):
     seq = "".join(str(rec.seq).upper().replace("N", "") for rec in SeqIO.parse(genome_path, "fasta"))
     if not seq:
