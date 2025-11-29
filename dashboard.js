@@ -86,7 +86,7 @@ let edges = new vis.DataSet([]);
     const totalAntEl = getSmallStatEl('Total Antibiotics');
     const resistantAntEl = getSmallStatEl('Resistance Antibiotics');
     const gcEl = getSmallStatEl('GC Content');
-    const lenNormEl = getSmallStatEl('Lenght Norm'); // note: "Lenght" typo in HTML
+    const lenNormEl = getSmallStatEl('Length Norm'); // note: "Lenght" typo in HTML
 
     // invisible file input (created by JS so HTML stays clean)
     const fileInput = document.createElement('input');
