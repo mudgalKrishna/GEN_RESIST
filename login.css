@@ -1,0 +1,86 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: inter;
+    color: var(--text-color);
+}
+
+:root {
+    --divBg: #1c1c1c;
+    --Bg: #121212;
+    --text-muted: #bbbbbb;
+    --text-color: #000000;
+    --gradient: linear-gradient(135deg, #0f2218, #1f4732);
+    --shortcut: #272727ff;
+}
+
+body{
+    background: var(--Bg);
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.formCont{
+    height: 70vh;
+    background: #F4F5F9;
+    aspect-ratio: 260 / 320;
+    border-radius: 2vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.loginHeading{
+    font-size: 2vw;
+    margin-bottom: 7vh;
+}
+
+form{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    height: min-content;
+}
+
+input{
+    width: 70%;
+    height: 6vh;
+    margin: 0;
+    margin-bottom: 1.5vh;
+    border: none;
+    box-sizing: border-box;
+    padding: 0 1vw;
+    border-radius: 0.5vw;
+}
+
+input:focus{
+    outline: none;
+}
+
+button{
+    width: 70%;
+    height: 6vh;
+    margin-top: 3vh;
+    border: none;
+    box-sizing: border-box;
+    padding: 0 1vw;
+    border-radius: 0.5vw;
+    background: var(--gradient);
+    color: white;
+    cursor: pointer;
+}
+
+.register{
+    width: 100%;
+    font-size: 0.75vw;
+    color: var(--text-muted);
+    width: 70%;
+    display: flex;
+    justify-content: end;
+}

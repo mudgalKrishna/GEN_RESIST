@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gen Resist - Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="https://unpkg.com/vis-network@9.1.2/standalone/umd/vis-network.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="icon" type="image/x-icon" href="logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="leftNav">
+        <div class="branding" onclick="window.location = './'">
+            <img src="logo.png" alt="">
+            GEN-RESIST
+        </div>
+        <div class="menu">
+            <div class="menuHeading">MENU</div>
+            <a href="./dashboard.html" class="menuItem"><i class="bi bi-columns-gap"></i>Dashboard</a>
+            <a href="./history.html" class="menuItem active"><i class="bi bi-clock-history"></i>Files Uploaded</a>
+            <a href="./community.html" class="menuItem"><i class="bi bi-people"></i>Community</a>
+        </div>
+        <div class="menu">
+            <div class="menuHeading">General</div>
+            <div class="menuItem"><i class="bi bi-gear"></i>Settings</div>
+            <div class="menuItem" id="logout"><i class="bi bi-arrow-bar-right"></i>Logout</div>
+        </div>
+    </div>
+    <div class="topNav">
+        <div class="upload">
+            <i class="bi bi-upload"></i>
+            <span>Upload</span>
+            <div class="shortcut"><i class="bi bi-command"></i> U</div>
+        </div>
+        <div class="userInfo">
+            <div class="darkMode" id="darkMode">
+                <i class="bi bi-moon"></i>
+            </div>
+            <div class="profile">
+                <div class="imgCont">
+                    <img src="memoji.png" alt="">
+                </div>
+                <div class="userInfoCont">
+                    <div class="name" id="name">Name</div>
+                    <div class="email" id="email">email</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <main>
+        <div class="heading">
+            Your Upload History
+        </div>
+        <div class="headingTagline">
+            All Files you have uploaded
+        </div>
+        <div class="stats historyStat" id="historyList">
+            Loading...
+        </div>
+    </main>
+    <script type="module" src="./supabase.js"></script>
+    <script type="module" src="history.js"></script>
+    <script type="module">
+        import { onAuthStateChange, sbLoadHistory } from './supabase.js';
+
+        onAuthStateChange(async (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            const listEl = document.getElementById("historyList");
+            const history = await sbLoadHistory();
+
+            if (history.length === 0) {
+                listEl.innerHTML = "No uploads yet.";
+                return;
+            }
+
+            listEl.innerHTML = "";
+            history.forEach(item => {
+                const div = document.createElement("div");
+                div.className = "smallStat fileStat"
+                div.innerHTML = `
+                    <div class="statIcon"><img src="folder.png" alt=""></div>
+                    <div class="statValue">${item.filename}</div>
+                    <div class="statPS"><span>${new Date(item.created_at).toLocaleDateString()}</span> <span>${new Date(item.created_at).toLocaleTimeString()}</span></div>
+                `;
+
+                div.addEventListener("click", () => {
+                    const target = `dashboard.html?url=${encodeURIComponent(item.file_url)}&name=${encodeURIComponent(item.filename)}`;
+                    window.location.href = target;
+                });
+
+                listEl.appendChild(div);
+            });
+        });
+    </script>
+</body>
+
+</html>

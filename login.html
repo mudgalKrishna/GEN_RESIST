@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEN-RESIST</title>
+    <link rel="icon" type="image/x-icon" href="logo.png">
+    <link rel="stylesheet" href="login.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="formCont">
+        <div class="loginHeading">Hello Again!</div>
+        <form id="loginForm">
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <a href="./register.html" class="register">Don't have an account? Register</a>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <script type="module">
+        import { sbLogin, onAuthStateChange } from './supabase.js';
+
+        onAuthStateChange(user => {
+            if (user) window.location.href = "dashboard.html";
+        });
+
+        document.getElementById("loginForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+
+            try {
+                await sbLogin(email, password);
+                window.location.href = "dashboard.html";
+            } catch (err) {
+                alert("Login failed: " + err.message);
+            }
+        });
+    </script>
+</body>
+
+</html>

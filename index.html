@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>GEN-RESIST</title>
+    <link rel="icon" type="image/x-icon" href="logo.png">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,14 +16,15 @@
 </head>
 
 <body>
+    <iframe class="dna" src='https://my.spline.design/spiraldna-5NzgnrbNTp1VYnnXjg05sji0/' frameborder='0' width='100%' height='100%'></iframe>
     <img class="blob1" src="whiteBlob.png" alt="">
     <img class="blob2" src="whiteBlob.png" alt="">
     <nav>
-        <div class="brandName"><img src="logo.jpeg" alt=""> GEN-RESIST</div>
+        <div class="brandName"><img src="logo.png" alt=""> GEN-RESIST</div>
         <div class="navItems">
-            <div class="navItem">Home</div>
-            <div class="navItem">About</div>
-            <div class="navItem" onclick="window.location='./dashboard.html'">Demo</div>
+            <a class="navItem">Home</a>
+            <a href="#about" class="navItem">About</a>
+            <a class="navItem" onclick="window.location='./dashboard.html'">Demo</a>
         </div>
         <div class="getStarted">
             <div class="getStartedBox" onclick="window.location='./dashboard.html'">
@@ -33,16 +35,16 @@
     <main>
         <img class="grid" src="grid.png" alt="">
         <div class="title">
-            Bacteria evolve <br> so should, <i style="font-weight: 200;">testing</i>
+            Predicting resistance<br> before it's too <i style="font-weight: 200;">late</i>
         </div>
         <div class="tagline">
             Upload your genomic data and watch our AI analyze antibiotic resistance patterns in minutes
         </div>
         <div class="preview">
-            <img src="sampleImage.png" alt="">
+            <img src="sampleImage2.png" alt="">
         </div>
     </main>
-    <section class="features">
+    <section class="features" id="about">
         <div class="headingBox">
             <div class="headingTag">
                 Features
